@@ -3,19 +3,17 @@
  <tileset firstgid="1" name="atlas" tilewidth="8" tileheight="8" tilecount="256" columns="16">
   <image source="../../gfx/atlas.bmp" trans="222034" width="128" height="128"/>
   <terraintypes>
-   <terrain name="left_corner" tile="-1"/>
-   <terrain name="right_corner" tile="-1"/>
    <terrain name="floor" tile="-1"/>
   </terraintypes>
   <tile id="64" terrain="0,0,0,0"/>
-  <tile id="65" terrain="2,2,2,2"/>
-  <tile id="66" terrain="1,1,1,1"/>
-  <tile id="80" terrain="2,2,2,2"/>
-  <tile id="81" terrain="2,2,2,2"/>
-  <tile id="82" terrain="2,2,2,2"/>
-  <tile id="96" terrain="2,2,2,2"/>
-  <tile id="97" terrain="2,2,2,2"/>
-  <tile id="98" terrain="2,2,2,2"/>
+  <tile id="65" terrain="0,0,0,0"/>
+  <tile id="66" terrain="0,0,0,0"/>
+  <tile id="80" terrain="0,0,0,0"/>
+  <tile id="81" terrain="0,0,0,0"/>
+  <tile id="82" terrain="0,0,0,0"/>
+  <tile id="96" terrain="0,0,0,0"/>
+  <tile id="97" terrain="0,0,0,0"/>
+  <tile id="98" terrain="0,0,0,0"/>
  </tileset>
  <layer name="map" width="40" height="30">
   <data encoding="csv">

@@ -3,9 +3,11 @@
  *
  * Handle the player
  */
+#include <base/collision.h>
 #include <base/error.h>
 #include <base/game.h>
 #include <base/gfx.h>
+#include <base/input.h>
 #include <conf/type.h>
 #include <GFraMe/gfmParser.h>
 #include <GFraMe/gfmSprite.h>
@@ -38,6 +40,8 @@ gfmSprite *pPlayer = 0;
 
 /** The player's current animation */
 static playerAnim curAnim;
+/** Whether the player jumped this frame */
+static int didJustJump;
 
 /* == Functions ============================================================= */
 
@@ -79,6 +83,9 @@ err initPlayer() {
     erv = _playAnimation(PL_STAND, 1/*force*/);
     ASSERT(erv == ERR_OK, erv);
 
+    rv = gfmSprite_setVerticalAcceleration(pPlayer, PLAYER_GRAV);
+    ASSERT(rv == GFMRV_OK, ERR_GFMERR);
+
     return ERR_OK;
 }
 
@@ -108,15 +115,78 @@ err loadPlayer(gfmParser *pParser) {
 /** Handle input, update the player's physics and collide it */
 err preUpdatePlayer() {
     gfmRV rv;
+    gfmCollision dir;
+
+    rv = gfmSprite_getCollision(&dir, pPlayer);
+    ASSERT(rv == GFMRV_OK, ERR_GFMERR);
+
+/* == Move ================================================================== */
+    if (IS_PRESSED(left)) {
+        gfmSprite_setDirection(pPlayer, 1);
+        rv = gfmSprite_setHorizontalVelocity(pPlayer, -PLAYER_SPEED);
+    }
+    else if (IS_PRESSED(right)) {
+        gfmSprite_setDirection(pPlayer, 0);
+        rv = gfmSprite_setHorizontalVelocity(pPlayer, PLAYER_SPEED);
+    }
+    else {
+        rv = gfmSprite_setHorizontalVelocity(pPlayer, 0);
+    }
+    ASSERT(rv == GFMRV_OK, ERR_GFMERR);
+
+/* == Jump ================================================================== */
+    didJustJump = 0;
+    if ((dir & gfmCollision_down) && DID_JUST_PRESS(jump)) {
+        rv = gfmSprite_setVerticalVelocity(pPlayer, PLAYER_JUMP);
+        ASSERT(rv == GFMRV_OK, ERR_GFMERR);
+        didJustJump = 1;
+    }
+
+/* == Physics update + collision ============================================ */
 
     rv = gfmSprite_update(pPlayer, game.pCtx);
     ASSERT(rv == GFMRV_OK, ERR_GFMERR);
+
+    rv = gfmQuadtree_collideSprite(collision.pStaticQt, pPlayer);
+    if (rv == GFMRV_QUADTREE_OVERLAPED) {
+        doCollide(collision.pStaticQt);
+    }
+    rv = gfmQuadtree_collideSprite(collision.pQt, pPlayer);
+    if (rv == GFMRV_QUADTREE_OVERLAPED) {
+        doCollide(collision.pQt);
+    }
 
     return ERR_OK;
 }
 
 /** Adjust everything after all updates. Mostly used to set the animation */
 err postUpdatePlayer() {
+    double vx;
+    gfmRV rv;
+    gfmCollision dir;
+    err erv;
+
+    rv = gfmSprite_getCollision(&dir, pPlayer);
+    ASSERT(rv == GFMRV_OK, ERR_GFMERR);
+    rv = gfmSprite_getHorizontalVelocity(&vx, pPlayer);
+    ASSERT(rv == GFMRV_OK, ERR_GFMERR);
+
+    if (didJustJump) {
+        erv =  _playAnimation(PL_JUMP, 1/*force*/);
+        ASSERT(erv == ERR_OK, erv);
+    }
+    else if (!(dir & gfmCollision_down)) {
+        /* Filter playing animations while airborne */
+    }
+    else if (vx != 0) {
+        erv =  _playAnimation(PL_WALK, 0/*force*/);
+        ASSERT(erv == ERR_OK, erv);
+    }
+    else {
+        erv =  _playAnimation(PL_STAND, 0/*force*/);
+        ASSERT(erv == ERR_OK, erv);
+    }
+
     return ERR_OK;
 }
 

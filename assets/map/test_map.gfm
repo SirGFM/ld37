@@ -1,6 +1,6 @@
-type left_corner 64
+type floor 64
 type floor 65
-type right_corner 66
+type floor 66
 type floor 80
 type floor 81
 type floor 82

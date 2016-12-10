@@ -27,8 +27,8 @@
     (id << T_BASE_NBITS) | base
 
 enum enType {
-      T_FLOOR        = gfmType_reserved_5  /* purple */
-    , T_PLAYER       = gfmType_reserved_7  /* light red */
+      T_FLOOR        = gfmType_reserved_5  /* 10 = purple    */
+    , T_PLAYER       = gfmType_reserved_7  /*  8 = light red */
     , T_LEFT_CORNER  = SUBTYPE(T_FLOOR, 1)
     , T_RIGHT_CORNER = SUBTYPE(T_FLOOR, 2)
 };

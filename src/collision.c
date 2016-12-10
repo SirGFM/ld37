@@ -13,6 +13,8 @@
 #include <GFraMe/gfmQuadtree.h>
 #include <GFraMe/gfmSprite.h>
 
+#include <ld37/player.h>
+
 #if defined(DEBUG) && !(defined(__WIN32) || defined(__WIN32__))
 #  include <stdlib.h>
 #  include <signal.h>
@@ -107,7 +109,36 @@ err doCollide(gfmQuadtreeRoot *pQt) {
         isFirstCase = 0;
         fallthrough = 0;
         switch (MERGE_TYPES(node1.type, node2.type)) {
-            /* TODO Handle every collision */
+            CASE(T_FLOOR, T_PLAYER)
+                rv = gfmObject_justOverlaped(node1.pObject, node2.pObject);
+                if (rv == GFMRV_TRUE) {
+                    gfmCollision dir;
+                    gfmSprite_getCurrentCollision(&dir, pPlayer);
+                    gfmObject_collide(node1.pObject, node2.pObject);
+                    if (dir & gfmCollision_down) {
+                        gfmSprite_setVerticalVelocity(pPlayer, 0);
+                        /* Corner case!! If the player would get stuck on a
+                         * corner, push 'em toward the platform */
+                        if (dir & gfmCollision_left) {
+                            int x, y;
+                            gfmSprite_getPosition(&x, &y, pPlayer);
+                            gfmSprite_setPosition(pPlayer, x - 1, y - 1);
+                        }
+                        else if (dir & gfmCollision_right) {
+                            int x, y;
+                            gfmSprite_getPosition(&x, &y, pPlayer);
+                            gfmSprite_setPosition(pPlayer, x + 1, y - 1);
+                        }
+                    }
+                    else if (dir & gfmCollision_up) {
+                        int y;
+                        gfmSprite_setVerticalVelocity(pPlayer, 0);
+                        gfmSprite_getVerticalPosition(&y, pPlayer);
+                        gfmSprite_setVerticalPosition(pPlayer, y + 1);
+                    }
+                }
+                rv = GFMRV_OK;
+            break;
 
             /* On Linux, a SIGINT is raised any time a unhandled collision
              * happens. When debugging, GDB will stop here and allow the user to
