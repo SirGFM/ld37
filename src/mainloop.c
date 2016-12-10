@@ -14,6 +14,7 @@
 #include <GFraMe/gfmQuadtree.h>
 
 #include <ld37/level.h>
+#include <ld37/player.h>
 #include <ld37/test.h>
 
 /** Run the main loop until the game is closed */
@@ -24,7 +25,7 @@ err mainloop() {
     /* TODO Init all global stuff */
     erv = initLevel();
     ASSERT_TO(erv == ERR_OK, NOOP(), __ret);
-    erv = initTest();
+    erv = initPlayer();
     ASSERT_TO(erv == ERR_OK, NOOP(), __ret);
 
     /* Set initial state */
@@ -35,7 +36,7 @@ err mainloop() {
         if (game.nextState != ST_NONE) {
             switch (game.nextState) {
                 case ST_DUMMY: break;
-                case ST_TEST: break;
+                case ST_TEST: erv = initTest(); break;
                 default: {}
             }
             ASSERT_TO(erv == ERR_OK, NOOP(), __ret);
@@ -116,6 +117,7 @@ err mainloop() {
 __ret:
     /* TODO Free all global stuff */
     cleanTest();
+    cleanPlayer();
     cleanLevel();
 
     return erv;

@@ -27,6 +27,7 @@
          base/static.o \
          base/setup.o \
          ld37/level.o \
+         ld37/player.o \
          ld37/test.o
 
 # Define the target name
