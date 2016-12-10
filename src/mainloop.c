@@ -13,21 +13,29 @@
 #include <GFraMe/gfmError.h>
 #include <GFraMe/gfmQuadtree.h>
 
+#include <ld37/level.h>
+#include <ld37/test.h>
+
 /** Run the main loop until the game is closed */
 err mainloop() {
     err erv;
     gfmRV rv;
 
     /* TODO Init all global stuff */
+    erv = initLevel();
+    ASSERT_TO(erv == ERR_OK, NOOP(), __ret);
+    erv = initTest();
+    ASSERT_TO(erv == ERR_OK, NOOP(), __ret);
 
     /* Set initial state */
-    game.nextState = ST_DUMMY;
+    game.nextState = ST_TEST;
 
     while (gfm_didGetQuitFlag(game.pCtx) != GFMRV_TRUE) {
         /* Switch state */
         if (game.nextState != ST_NONE) {
             switch (game.nextState) {
                 case ST_DUMMY: break;
+                case ST_TEST: break;
                 default: {}
             }
             ASSERT_TO(erv == ERR_OK, NOOP(), __ret);
@@ -60,6 +68,7 @@ err mainloop() {
             /* Update the current state */
             switch (game.currentState) {
                 case ST_DUMMY: break;
+                case ST_TEST: erv = updateTest(); break;
                 default: {}
             }
             ASSERT_TO(erv == ERR_OK, NOOP(), __ret);
@@ -77,6 +86,7 @@ err mainloop() {
             /* Render the current state */
             switch (game.currentState) {
                 case ST_DUMMY: break;
+                case ST_TEST: erv = drawTest(); break;
                 default: {}
             }
             ASSERT_TO(erv == ERR_OK, NOOP(), __ret);
@@ -85,10 +95,12 @@ err mainloop() {
                 rv = gfmQuadtree_drawBounds(collision.pStaticQt, game.pCtx, 0);
                 ASSERT_TO(rv == GFMRV_QUADTREE_EMPTY
                         || rv == GFMRV_QUADTREE_NOT_INITIALIZED
+                        || rv == GFMRV_ARGUMENTS_BAD
                         || rv == GFMRV_OK, erv = ERR_GFMERR, __ret);
                 rv = gfmQuadtree_drawBounds(collision.pQt, game.pCtx, 0);
                 ASSERT_TO(rv == GFMRV_QUADTREE_EMPTY
                         || rv == GFMRV_QUADTREE_NOT_INITIALIZED
+                        || rv == GFMRV_ARGUMENTS_BAD
                         || rv == GFMRV_OK, erv = ERR_GFMERR, __ret);
             }
 
@@ -103,6 +115,8 @@ err mainloop() {
     erv = ERR_OK;
 __ret:
     /* TODO Free all global stuff */
+    cleanTest();
+    cleanLevel();
 
     return erv;
 }

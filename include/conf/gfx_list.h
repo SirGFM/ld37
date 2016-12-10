@@ -11,9 +11,8 @@
  * the name of the attribute, the second is the file and the last is the alpha
  * color key (in RRGGBB format).
  */
-#define TEXTURE_LIST
-//e.g. | var |     file       |  colorkey
-//    X(atlas, "gfx/atlas.bmp", 0x222034)
+#define TEXTURE_LIST \
+  X(atlas, "gfx/atlas.bmp", 0x222034)
 
 /**
  * List of spritesets. When defining the 'X macro' for use, the first parameter
@@ -21,9 +20,9 @@
  * is its height and the last one is the name of the texture associated with
  * this spriteset.
  */
-#define SPRITESET_LIST
-//e.g. | var    | width | height | texture (the var)
-//    X(pSset8x8,   8   ,    8   , atlas)
+#define SPRITESET_LIST \
+  X(pSset4x4, 4, 4, atlas) \
+  X(pSset8x8, 8, 8, atlas)
 
 #endif /* __CONF_GFX_LIST_H__ */
 

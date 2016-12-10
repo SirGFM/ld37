@@ -9,6 +9,7 @@
 enum enState {
     ST_NONE = 0,
     ST_DUMMY,
+    ST_TEST,
     ST_MAX
 };
 typedef enum enState state;

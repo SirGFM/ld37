@@ -22,23 +22,15 @@
 #define TYPE(type) \
     (type & T_MASK)
 
-enum enType {
-/**
- * Example extracted from JJAT2 (WIP)
- *
- * NOTE: T_FLOOR was kept outside because the enum can't be empty...
- */
-      T_FLOOR     = gfmType_reserved_5  /* purple */
-#if 0
-    , T_PLAYER    = gfmType_reserved_7  /* light red */
-    , T_FX        = gfmType_reserved_10 /* dirty yellow/green */
+/** Define a new sub-type */
+#define SUBTYPE(base, id) \
+    (id << T_BASE_NBITS) | base
 
-    , T_SWORDY     = (1 << T_BASE_NBITS) | T_PLAYER
-    , T_GUNNY      = (2 << T_BASE_NBITS) | T_PLAYER
-    , T_ATK_SWORD  = (3 << T_BASE_NBITS) | T_PLAYER
-    , T_SWORD_FX   = (3 << T_BASE_NBITS) | T_FX
-    , T_TEL_BULLET = (4 << T_BASE_NBITS) | T_PLAYER
-#endif
+enum enType {
+      T_FLOOR        = gfmType_reserved_5  /* purple */
+    , T_PLAYER       = gfmType_reserved_7  /* light red */
+    , T_LEFT_CORNER  = SUBTYPE(T_FLOOR, 1)
+    , T_RIGHT_CORNER = SUBTYPE(T_FLOOR, 2)
 };
 typedef enum enType type;
 

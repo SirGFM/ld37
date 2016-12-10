@@ -13,6 +13,7 @@
     X(ERR_ARGUMENTBAD) \
     X(ERR_MISSINGPARAM) \
     X(ERR_GFMERR) \
+    X(ERR_MALLOC) \
     X(ERR_INDEXOOB) \
     X(ERR_DIDJUMP) \
     X(ERR_MAX)

@@ -12,7 +12,7 @@
 #define V_HEIGHT    240
 /** Organization (directory created within %APPDATA% or ~/.local/share/ where
  * the the game's directory is located) */
-#define ORG         "YOUR.ORGANIZATION"
+#define ORG         "com.gfmgamecorner"
 /** Game's title (used both on the window's title bar and as the actual
  * sub-directory within ORG where logs and save data are stored) */
 #define TITLE       "GAME_TITLE"

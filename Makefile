@@ -13,7 +13,7 @@
 # CONFIGURABLE VARIABLES
 #=======================================================================
 # Define the list of subdirectories (which exist within src/)
-  SUBDIRLIST := base jjat2
+  SUBDIRLIST := base ld37
 
 # Define every object required by compilation
   OBJS := \
@@ -25,7 +25,9 @@
          base/input.o \
          base/main.o \
          base/static.o \
-         base/setup.o
+         base/setup.o \
+         ld37/level.o \
+         ld37/test.o
 
 # Define the target name
   TARGET := game

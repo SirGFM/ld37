@@ -159,6 +159,7 @@ err initInput() {
     rv = gfm_bindGamepadInput(game.pCtx, input.name.handle, button, 0); \
     ASSERT(rv == GFMRV_OK, ERR_GFMERR);
     X_BUTTON_LIST
+    X_ALTERNATE_BUTTON_MAPPING
 #undef X_3
 #undef X_2
 #undef X_1
