@@ -3,7 +3,7 @@
  *
  * Handle the hook and flinging the player
  */
-
+#include <base/collision.h>
 #include <base/error.h>
 #include <base/game.h>
 #include <base/gfx.h>
@@ -65,6 +65,12 @@ void cleanHook() {
 /** Reset the hook back to its initial state */
 void resetHook() {
     flags = 0;
+}
+
+/** Called whenever the hook grapple onto something */
+void onGrapple() {
+    flags &= ~(HF_THROW | HF_RECOVER);
+    flags |= HF_GRAPPLED;
 }
 
 /** Update the hook, if active */
@@ -182,8 +188,16 @@ err updateHook() {
     if (flags & HF_GRAPPLED) {
         /* TODO */
     }
-    else {
-        /* TODO Collide with the world to check if did grapple */
+    else if (!(flags & HF_RECOVER)) {
+        /* Collide with the world to check if did grapple */
+        rv = gfmQuadtree_collideSprite(collision.pStaticQt, pHook);
+        if (rv == GFMRV_QUADTREE_OVERLAPED) {
+            doCollide(collision.pStaticQt);
+        }
+        rv = gfmQuadtree_collideSprite(collision.pQt, pHook);
+        if (rv == GFMRV_QUADTREE_OVERLAPED) {
+            doCollide(collision.pQt);
+        }
     }
 
     if (flags & HF_RECOVER) {
@@ -217,36 +231,38 @@ err updateHook() {
 
 /* == Update hook's frame/angle ============================================= */
 
-    /* Calculate the angle between the player and the hook (and set the sprite
-     * accordingly) */
-    dy = py - hy;
-    dx = px - hx;
-    if (dx == 0 && dy < 0) {
-        /* Corner case: straight bellow */
-        angle = 180;
-    }
-    else if (dx == 0 && dy > 0) {
-        /* Corner case: straight above */
-        angle = 0;
-    }
-    else if (dx == 0) {
-        /* Corner case: centered on player */
-        angle = 0;
-    }
-    else {
-        double tg;
-
-        tg = (double)(dy) / (double)(dx);
-        angle = (int)(atan(tg) * 180.0 / M_PI);
-        angle += 90;
-        if (dx > 0) {
-            /* Hook to the player's left */
-            angle += 180;
+    if (!(flags & HF_GRAPPLED)) {
+        /* Calculate the angle between the player and the hook (and set the
+         * sprite accordingly) */
+        dy = py - hy;
+        dx = px - hx;
+        if (dx == 0 && dy < 0) {
+            /* Corner case: straight bellow */
+            angle = 180;
         }
-    }
+        else if (dx == 0 && dy > 0) {
+            /* Corner case: straight above */
+            angle = 0;
+        }
+        else if (dx == 0) {
+            /* Corner case: centered on player */
+            angle = 0;
+        }
+        else {
+            double tg;
 
-    rv = gfmSprite_setFrame(pHook, HOOK_INIT_FRAME + angle / 45);
-    ASSERT(rv == GFMRV_OK, ERR_GFMERR);
+            tg = (double)(dy) / (double)(dx);
+            angle = (int)(atan(tg) * 180.0 / M_PI);
+            angle += 90;
+            if (dx > 0) {
+                /* Hook to the player's left */
+                angle += 180;
+            }
+        }
+
+        rv = gfmSprite_setFrame(pHook, HOOK_INIT_FRAME + angle / 45);
+        ASSERT(rv == GFMRV_OK, ERR_GFMERR);
+    } /* !(flags & HF_GRAPPLED) */
 
     return ERR_OK;
 }

@@ -13,6 +13,7 @@
 #include <GFraMe/gfmQuadtree.h>
 #include <GFraMe/gfmSprite.h>
 
+#include <ld37/hook.h>
 #include <ld37/player.h>
 
 #if defined(DEBUG) && !(defined(__WIN32) || defined(__WIN32__))
@@ -109,6 +110,9 @@ err doCollide(gfmQuadtreeRoot *pQt) {
         isFirstCase = 0;
         fallthrough = 0;
         switch (MERGE_TYPES(node1.type, node2.type)) {
+            CASE(T_FLOOR, T_HOOK)
+                onGrapple();
+            break;
             CASE(T_FLOOR, T_PLAYER)
                 rv = gfmObject_justOverlaped(node1.pObject, node2.pObject);
                 if (rv == GFMRV_TRUE) {
@@ -140,6 +144,8 @@ err doCollide(gfmQuadtreeRoot *pQt) {
                 rv = GFMRV_OK;
             break;
 
+            IGNORE(T_PLAYER, T_HOOK)
+            break;
             /* On Linux, a SIGINT is raised any time a unhandled collision
              * happens. When debugging, GDB will stop here and allow the user to
              * check which types weren't handled */

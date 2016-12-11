@@ -27,6 +27,8 @@ err initHook();
 void cleanHook();
 /** Reset the hook back to its initial state */
 void resetHook();
+/** Called whenever the hook grapple onto something */
+void onGrapple();
 /** Update the hook, if active */
 err updateHook();
 /** Draw the hook, if active */
