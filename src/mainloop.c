@@ -13,6 +13,7 @@
 #include <GFraMe/gfmError.h>
 #include <GFraMe/gfmQuadtree.h>
 
+#include <ld37/hook.h>
 #include <ld37/level.h>
 #include <ld37/player.h>
 #include <ld37/test.h>
@@ -26,6 +27,8 @@ err mainloop() {
     erv = initLevel();
     ASSERT_TO(erv == ERR_OK, NOOP(), __ret);
     erv = initPlayer();
+    ASSERT_TO(erv == ERR_OK, NOOP(), __ret);
+    erv = initHook();
     ASSERT_TO(erv == ERR_OK, NOOP(), __ret);
 
     /* Set initial state */
@@ -117,6 +120,7 @@ err mainloop() {
 __ret:
     /* TODO Free all global stuff */
     cleanTest();
+    cleanHook();
     cleanPlayer();
     cleanLevel();
 

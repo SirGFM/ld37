@@ -26,6 +26,7 @@
          base/main.o \
          base/static.o \
          base/setup.o \
+         ld37/hook.o \
          ld37/level.o \
          ld37/player.o \
          ld37/test.o
@@ -82,7 +83,7 @@
   endif
 
   # Define LDFLAGS
-  LDFLAGS := $(LDFLAGS) -L$(GFRAME_LIBS)
+  LDFLAGS := $(LDFLAGS) -lm -L$(GFRAME_LIBS)
   ifeq ($(RELEASE), yes)
     LDFLAGS := $(LDFLAGS) -lGFraMe
   else

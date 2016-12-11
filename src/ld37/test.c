@@ -3,6 +3,7 @@
 #include <base/input.h>
 #include <GFraMe/gfmParser.h>
 #include <GFraMe/gfmTilemap.h>
+#include <ld37/hook.h>
 #include <ld37/level.h>
 #include <ld37/player.h>
 #include <ld37/test.h>
@@ -40,6 +41,8 @@ err initTest() {
             ASSERT_TO(0, erv = ERR_UNKNOWNTYPE, __ret);
         }
     }
+
+    resetHook();
 
     erv = ERR_OK;
 __ret:
@@ -79,6 +82,9 @@ err updateTest() {
     erv = preUpdatePlayer();
     ASSERT(erv == ERR_OK, erv);
 
+    erv = updateHook();
+    ASSERT(erv == ERR_OK, erv);
+
     erv = postUpdatePlayer();
     ASSERT(erv == ERR_OK, erv);
 
@@ -92,6 +98,8 @@ err drawTest() {
     rv = gfmTilemap_draw(pMap, game.pCtx);
     ASSERT(rv == GFMRV_OK, ERR_GFMERR);
     erv = drawPlayer();
+    ASSERT(erv == ERR_OK, erv);
+    erv = drawHook();
     ASSERT(erv == ERR_OK, erv);
 
     return ERR_OK;

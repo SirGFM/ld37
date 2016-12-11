@@ -31,6 +31,7 @@ enum enType {
     , T_PLAYER       = gfmType_reserved_7  /*  8 = light red */
     , T_LEFT_CORNER  = SUBTYPE(T_FLOOR, 1)
     , T_RIGHT_CORNER = SUBTYPE(T_FLOOR, 2)
+    , T_HOOK         = SUBTYPE(T_PLAYER, 1)
 };
 typedef enum enType type;
 
