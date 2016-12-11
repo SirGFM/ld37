@@ -145,7 +145,13 @@ err doCollide(gfmQuadtreeRoot *pQt) {
                 rv = GFMRV_OK;
             break;
 
-            IGNORE(T_PLAYER, T_HOOK)
+            IGNORE(T_HOOK, T_PLAYER)
+            IGNORE(T_HOOK, T_JEWEL)
+            IGNORE(T_HOOK, T_HORIZONTAL)
+            IGNORE(T_HOOK, T_VERTICAL)
+            IGNORE(T_FLOOR, T_JEWEL)
+            IGNORE(T_FLOOR, T_HORIZONTAL)
+            IGNORE(T_FLOOR, T_VERTICAL)
             break;
             /* On Linux, a SIGINT is raised any time a unhandled collision
              * happens. When debugging, GDB will stop here and allow the user to

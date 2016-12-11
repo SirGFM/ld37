@@ -33,7 +33,7 @@ enum enType {
     , T_HOOK         = SUBTYPE(T_PLAYER, 1)
     , T_HORIZONTAL   = SUBTYPE(T_STUFF, 1)
     , T_VERTICAL     = SUBTYPE(T_STUFF, 2)
-    , T_END          = SUBTYPE(T_STUFF, 3)
+    , T_JEWEL        = SUBTYPE(T_STUFF, 3)
 };
 typedef enum enType type;
 

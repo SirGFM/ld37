@@ -8,6 +8,12 @@
 
 #include <base/error.h>
 
+#define MAX_STUFF   128
+
+#define VERTICAL_TILE   125
+#define HORIZONTAL_TILE 126
+#define JEWEL_TILE      127
+
 err initPlaystate();
 err loadPlaystate();
 void cleanPlaystate();
