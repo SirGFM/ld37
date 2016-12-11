@@ -49,7 +49,7 @@ err initHook() {
     rv = gfmSprite_getNew(&pHook);
     ASSERT(rv == GFMRV_OK, ERR_GFMERR);
     rv = gfmSprite_init(pHook, 0/*x*/, 0/*y*/, HOOK_DEF_WIDTH, HOOK_DEF_HEIGHT
-            , gfx.pSset4x4, HOOK_DEF_OFFX, HOOK_DEF_OFFY, 0/*child*/, T_HOOK);
+            , HOOK_SPRITESET, HOOK_DEF_OFFX, HOOK_DEF_OFFY, 0/*child*/, T_HOOK);
     ASSERT(rv == GFMRV_OK, ERR_GFMERR);
     rv = gfmSprite_setFrame(pHook, HOOK_INIT_FRAME);
     ASSERT(rv == GFMRV_OK, ERR_GFMERR);
@@ -295,9 +295,9 @@ err drawHook() {
     while (i < CHAIN_LEN) {
         int x, y;
 
-        x = plX + dx * i - 1;
-        y = plY + dy * i - 1;
-        rv = gfm_drawTile(game.pCtx, gfx.pSset4x4, x, y, CHAIN_FRAME, 0);
+        x = plX + dx * i - 2;
+        y = plY + dy * i - 2;
+        rv = gfm_drawTile(game.pCtx, HOOK_SPRITESET, x, y, CHAIN_FRAME, 0);
         ASSERT(rv == GFMRV_OK, ERR_GFMERR);
 
         i++;

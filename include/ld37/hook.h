@@ -13,8 +13,9 @@
 #define HOOK_DEF_HEIGHT 2
 #define HOOK_DEF_OFFX   -1
 #define HOOK_DEF_OFFY   -1
-#define HOOK_INIT_FRAME 640
-#define CHAIN_FRAME     648
+#define HOOK_SPRITESET  gfx.pSset8x8
+#define HOOK_INIT_FRAME 144
+#define CHAIN_FRAME     (HOOK_INIT_FRAME + 8)
 #define CHAIN_LEN       32
 #define MAX_HOOK_DIST   TILES_TO_PX(10)
 /** Time (in frames!!!) that take the hook to reach its target */
