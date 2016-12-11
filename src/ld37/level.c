@@ -39,22 +39,16 @@ static int *pBothMirrorData = 0;
 /* This enumeration is required to ensured no unnecessary empty space appears on
  * typeValues or typeNames */
 enum {
-    TM_LEFT_CORNER = 0
-  , TM_RIGHT_CORNER
-  , TM_FLOOR
+    TM_FLOOR = 0
   , TM_DICT_LEN
 };
 
 int typeValues[] = {
-    [TM_LEFT_CORNER] = T_LEFT_CORNER
-  , [TM_RIGHT_CORNER] = T_RIGHT_CORNER
-  , [TM_FLOOR] = T_FLOOR
+    [TM_FLOOR] = T_FLOOR
 };
 
 char *typeNames[] = {
-    [TM_LEFT_CORNER] = "left_corner"
-  , [TM_RIGHT_CORNER] = "right_corner"
-  , [TM_FLOOR] = "floor"
+    [TM_FLOOR] = "floor"
 };
 
 /* == Functions ============================================================= */
@@ -147,6 +141,17 @@ void cleanLevel() {
     pBothMirrorData = 0;
 }
 
+/** Retrieve the level's width in pixels */
+int getLevelWidth() {
+    return widthInTiles * 8;
+}
+
+/** Retrieve the level's height in pixels */
+int getLevelHeight() {
+    return heightInTiles * 8;
+}
+
+
 /**
  * Re-load the level into the given orientation
  *
@@ -207,40 +212,31 @@ err loadLevel(levelOrientation orientation) {
  */
 static inline int _recalculateTile(int tile, levelOrientation orientation) {
     switch (tile) {
-        case 64: /* top left */
-            if (orientation == LO_HORIZONTAL_MIRROR)    return 66;
-            else if (orientation == LO_VERTICAL_MIRROR) return 96;
-            else if (orientation == LO_MIRROR_BOTH)     return 98;
-            break;
-        case 65: /* top */
-            if (orientation & LO_VERTICAL_MIRROR) return 97;
-            break;
-        case 66: /* top right */
-            if (orientation == LO_HORIZONTAL_MIRROR)    return 64;
-            else if (orientation == LO_VERTICAL_MIRROR) return 98;
-            else if (orientation == LO_MIRROR_BOTH)     return 96;
-            break;
-        case 80: /* left */
-            if (orientation & LO_HORIZONTAL_MIRROR) return 82;
-            break;
-        case 81: /* center */
-            break;
-        case 82: /* right */
-            if (orientation & LO_HORIZONTAL_MIRROR) return 80;
-            break;
-        case 96: /* bottom left */
-            if (orientation == LO_HORIZONTAL_MIRROR)    return 98;
-            else if (orientation == LO_VERTICAL_MIRROR) return 64;
-            else if (orientation == LO_MIRROR_BOTH)     return 66;
-            break;
-        case 97: /* bottom */
-            if (orientation & LO_VERTICAL_MIRROR) return 65;
-            break;
-        case 98: /* bottom right */
-            if (orientation == LO_HORIZONTAL_MIRROR)    return 96;
-            else if (orientation == LO_VERTICAL_MIRROR) return 66;
-            else if (orientation == LO_MIRROR_BOTH)     return 64;
-            break;
+#define MIRRORED_CASE(tile) \
+        case tile: \
+        case tile + 4: \
+        case tile + 8: \
+        case tile + 12: \
+            if (orientation == LO_HORIZONTAL_MIRROR)    return tile + 4; \
+            else if (orientation == LO_VERTICAL_MIRROR) return tile + 8; \
+            else if (orientation == LO_MIRROR_BOTH)     return tile + 12; \
+            else                                        return tile; \
+            break
+
+        MIRRORED_CASE(64); /* top left */
+        MIRRORED_CASE(65); /* top */
+        MIRRORED_CASE(66); /* top right */
+        MIRRORED_CASE(80); /* left */
+        MIRRORED_CASE(81); /* center */
+        MIRRORED_CASE(82); /* right */
+        MIRRORED_CASE(96); /* bottom left */
+        MIRRORED_CASE(97); /* bottom */
+        MIRRORED_CASE(98); /* bottom right */
+        MIRRORED_CASE(67); /* diagonal shadow */
+        MIRRORED_CASE(83); /* full shadow */
+
+#undef MIRRORED_CASE
+
         default: return tile;
     }
     return tile;

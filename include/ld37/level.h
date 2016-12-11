@@ -12,7 +12,7 @@
 #define TM_DEF_WIDTH    40
 #define TM_DEF_HEIGHT   30
 #define TM_DEF_TILE     -1
-#define TM_DEF_MAP      "map/test_map.gfm"
+#define TM_DEF_MAP      "map/map_map.gfm"
 #define TM_DEF_MAP_LEN  (sizeof(TM_DEF_MAP) - 1)
 
 /** The game's main/only tilemap */
@@ -30,6 +30,10 @@ typedef enum enLevelOrientation levelOrientation;
 err initLevel();
 /** Release all static data */
 void cleanLevel();
+/** Retrieve the level's width in pixels */
+int getLevelWidth();
+/** Retrieve the level's height in pixels */
+int getLevelHeight();
 /**
  * Re-load the level into the given orientation
  *

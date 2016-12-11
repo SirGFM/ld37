@@ -7,10 +7,11 @@
 #define __CONF_STATE_H__
 
 enum enState {
-    ST_NONE = 0,
-    ST_DUMMY,
-    ST_TEST,
-    ST_MAX
+    ST_NONE = 0
+  , ST_DUMMY
+  , ST_TEST
+  , ST_PLAYSTATE
+  , ST_MAX
 };
 typedef enum enState state;
 

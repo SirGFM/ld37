@@ -18,7 +18,7 @@
 
 #define PLAYER_JUMP         JUMP_SPEED(16/*frames-to-appex*/, 1.8/*tiles*/)
 #define PLAYER_GRAV         JUMP_ACCELERATION(16/*frames-to-appex*/, 1.8/*tiles*/)
-#define PLAYER_DRAG         25
+#define PLAYER_DRAG         10
 #define PLAYER_SPEED        TILES_TO_PX(3)
 
 /** The player's sprite */

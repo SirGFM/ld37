@@ -16,6 +16,7 @@
 #include <ld37/hook.h>
 #include <ld37/level.h>
 #include <ld37/player.h>
+#include <ld37/playstate.h>
 #include <ld37/test.h>
 
 /** Run the main loop until the game is closed */
@@ -30,9 +31,11 @@ err mainloop() {
     ASSERT_TO(erv == ERR_OK, NOOP(), __ret);
     erv = initHook();
     ASSERT_TO(erv == ERR_OK, NOOP(), __ret);
+    erv = initPlaystate();
+    ASSERT_TO(erv == ERR_OK, NOOP(), __ret);
 
     /* Set initial state */
-    game.nextState = ST_TEST;
+    game.nextState = ST_PLAYSTATE;
 
     while (gfm_didGetQuitFlag(game.pCtx) != GFMRV_TRUE) {
         /* Switch state */
@@ -40,6 +43,7 @@ err mainloop() {
             switch (game.nextState) {
                 case ST_DUMMY: break;
                 case ST_TEST: erv = initTest(); break;
+                case ST_PLAYSTATE: erv = loadPlaystate(); break;
                 default: {}
             }
             ASSERT_TO(erv == ERR_OK, NOOP(), __ret);
@@ -73,6 +77,7 @@ err mainloop() {
             switch (game.currentState) {
                 case ST_DUMMY: break;
                 case ST_TEST: erv = updateTest(); break;
+                case ST_PLAYSTATE: erv = updatePlaystate(); break;
                 default: {}
             }
             ASSERT_TO(erv == ERR_OK, NOOP(), __ret);
@@ -91,6 +96,7 @@ err mainloop() {
             switch (game.currentState) {
                 case ST_DUMMY: break;
                 case ST_TEST: erv = drawTest(); break;
+                case ST_PLAYSTATE: erv = drawPlaystate(); break;
                 default: {}
             }
             ASSERT_TO(erv == ERR_OK, NOOP(), __ret);
@@ -120,6 +126,7 @@ err mainloop() {
 __ret:
     /* TODO Free all global stuff */
     cleanTest();
+    cleanPlaystate();
     cleanHook();
     cleanPlayer();
     cleanLevel();
