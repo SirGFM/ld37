@@ -9,10 +9,15 @@
 #include <base/gfx.h>
 #include <base/input.h>
 #include <conf/type.h>
+#include <GFraMe/gfmDebug.h>
 #include <GFraMe/gfmParser.h>
 #include <GFraMe/gfmSprite.h>
 #include <GFraMe/gfmQuadtree.h>
+#include <ld37/hook.h>
 #include <ld37/player.h>
+#if defined(DEBUG)
+#  include <stdlib.h>
+#endif
 
 /* == Player's animation ==================================================== */
 
@@ -83,6 +88,9 @@ err initPlayer() {
     erv = _playAnimation(PL_STAND, 1/*force*/);
     ASSERT(erv == ERR_OK, erv);
 
+    rv = gfmSprite_setDrag(pPlayer, PLAYER_DRAG, PLAYER_DRAG);
+    ASSERT(rv == GFMRV_OK, ERR_GFMERR);
+
     rv = gfmSprite_setVerticalAcceleration(pPlayer, PLAYER_GRAV);
     ASSERT(rv == GFMRV_OK, ERR_GFMERR);
 
@@ -133,6 +141,17 @@ err preUpdatePlayer() {
     rv = gfmSprite_getCollision(&dir, pPlayer);
     ASSERT(rv == GFMRV_OK, ERR_GFMERR);
 
+    /* Let the physics be completelly controlled by the grapple */
+    if (!(dir & gfmCollision_down) && isGrappled()) {
+        rv = gfmSprite_update(pPlayer, game.pCtx);
+        ASSERT(rv == GFMRV_OK, ERR_GFMERR);
+        collidePlayer();
+
+        return ERR_OK;
+    }
+    rv = gfmSprite_setAcceleration(pPlayer, 0, PLAYER_GRAV);
+    ASSERT(rv == GFMRV_OK, ERR_GFMERR);
+
 /* == Move ================================================================== */
     if (IS_PRESSED(left)) {
         gfmSprite_setDirection(pPlayer, 1);
@@ -142,7 +161,7 @@ err preUpdatePlayer() {
         gfmSprite_setDirection(pPlayer, 0);
         rv = gfmSprite_setHorizontalVelocity(pPlayer, PLAYER_SPEED);
     }
-    else {
+    else if (dir & gfmCollision_down) {
         rv = gfmSprite_setHorizontalVelocity(pPlayer, 0);
     }
     ASSERT(rv == GFMRV_OK, ERR_GFMERR);
@@ -159,7 +178,6 @@ err preUpdatePlayer() {
 
     rv = gfmSprite_update(pPlayer, game.pCtx);
     ASSERT(rv == GFMRV_OK, ERR_GFMERR);
-
     collidePlayer();
 
     return ERR_OK;
@@ -199,6 +217,37 @@ err postUpdatePlayer() {
 /** Draw the player */
 err drawPlayer() {
     gfmRV rv;
+#if defined(DEBUG)
+    double ax, ay, vx, vy;
+    rv = gfmSprite_getAcceleration(&ax, &ay, pPlayer);
+    ASSERT(rv == GFMRV_OK, ERR_GFMERR);
+    rv = gfmSprite_getVelocity(&vx, &vy, pPlayer);
+    ASSERT(rv == GFMRV_OK, ERR_GFMERR);
+
+#define INT(n) ((int)(n))
+#define UINT(n) ((uint)abs(n))
+#define DEC(n) ((int)(UINT(n * 1000) - UINT(UINT(n) * 1000)))
+
+    gfmDebug_printf(game.pCtx, 120, 4
+            , "AX: %03i.%03i\n"
+              "AY: %03i.%03i\n"
+              "VX: %03i.%03i\n"
+              "VY: %03i.%03i\n"
+            , INT(ax)
+            , DEC(ax)
+            , INT(ay)
+            , DEC(ay)
+            , INT(vx)
+            , DEC(vx)
+            , INT(vy)
+            , DEC(vy));
+
+#undef INT
+#undef DEC
+#undef UINT
+
+#endif
+
     rv = gfmSprite_draw(pPlayer, game.pCtx);
     ASSERT(rv == GFMRV_OK, ERR_GFMERR);
     return ERR_OK;

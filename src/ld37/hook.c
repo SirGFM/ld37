@@ -16,6 +16,7 @@
 #include <ld37/player.h>
 #include <math.h>
 #include <stdint.h>
+#include <stdlib.h>
 
 /* == Global stuff ========================================================== */
 
@@ -71,6 +72,49 @@ void resetHook() {
     flags = 0;
 }
 
+/**
+ * Retrieve the current angle between the player and the hook
+ *
+ * NOTE: 0 points upward, M_PI_2 points to the right
+ *
+ * @param  [ in]px The player's position
+ * @param  [ in]py The player's position
+ * @param  [ in]hx The hook's position
+ * @param  [ in]hy The hook's position
+ */
+static double _getCurrentAngle(int px, int py, int hx, int hy) {
+    int dx, dy;
+
+    /* Calculate the angle between the player and the hook (and set the
+     * sprite accordingly) */
+    dy = py - hy;
+    dx = px - hx;
+    if (dx == 0 && dy < 0) {
+        /* Corner case: straight bellow */
+        return M_PI;
+    }
+    else if (dx == 0 && dy > 0) {
+        /* Corner case: straight above */
+        return 0;
+    }
+    else if (dx == 0) {
+        /* Corner case: centered on player */
+        return 0;
+    }
+    else {
+        double angle, tg;
+
+        tg = (double)(dy) / (double)(dx);
+        angle = atan(tg);
+        angle += M_PI_2;
+        if (dx > 0) {
+            /* Hook to the player's left */
+            angle += M_PI;
+        }
+        return angle;
+    }
+}
+
 /** Retrieve the current distance between the hook and the player */
 static uint32_t _getCurrentDistance() {
     int x, y, px, py;
@@ -101,7 +145,7 @@ __cont:
 /** Update the hook, if active */
 err updateHook() {
     gfmRV rv;
-    int angle, hx, hy, px, py, dy, dx;
+    int hx, hy, px, py;
 
     rv = gfmSprite_getCenter(&hx, &hy, pHook);
     ASSERT(rv == GFMRV_OK, ERR_GFMERR);
@@ -261,12 +305,21 @@ err updateHook() {
                 ASSERT(rv == GFMRV_OK, ERR_GFMERR);
 
                 collidePlayer();
-            }
-        }
+            } /* dist >= maxDist */
+        } /* dir & gfmCollision_down */
         else {
-            /* TODO */
+            double angle, ax, ay;
+
+            angle = 2 * M_PI - _getCurrentAngle(px, py, hx, hy);
+            angle += M_PI * 6 / 4;
+
+            ax = -cos(angle) * PLAYER_GRAV;
+            ay = sin(angle) * PLAYER_GRAV;
+
+            rv = gfmSprite_setAcceleration(pPlayer, ax, ay);
+            ASSERT(rv == GFMRV_OK, ERR_GFMERR);
         }
-    }
+    } /* flags & HF_GRAPPLED */
     else if (!(flags & HF_RECOVER)) {
         /* Collide with the world to check if did grapple */
         rv = gfmQuadtree_collideSprite(collision.pStaticQt, pHook);
@@ -311,34 +364,7 @@ err updateHook() {
 /* == Update hook's frame/angle ============================================= */
 
     if (!(flags & HF_GRAPPLED)) {
-        /* Calculate the angle between the player and the hook (and set the
-         * sprite accordingly) */
-        dy = py - hy;
-        dx = px - hx;
-        if (dx == 0 && dy < 0) {
-            /* Corner case: straight bellow */
-            angle = 180;
-        }
-        else if (dx == 0 && dy > 0) {
-            /* Corner case: straight above */
-            angle = 0;
-        }
-        else if (dx == 0) {
-            /* Corner case: centered on player */
-            angle = 0;
-        }
-        else {
-            double tg;
-
-            tg = (double)(dy) / (double)(dx);
-            angle = (int)(atan(tg) * 180.0 / M_PI);
-            angle += 90;
-            if (dx > 0) {
-                /* Hook to the player's left */
-                angle += 180;
-            }
-        }
-
+        int angle = (int)(_getCurrentAngle(px, py, hx, hy) * 180.0 / M_PI);
         rv = gfmSprite_setFrame(pHook, HOOK_INIT_FRAME + angle / 45);
         ASSERT(rv == GFMRV_OK, ERR_GFMERR);
     } /* !(flags & HF_GRAPPLED) */
@@ -359,16 +385,18 @@ err drawHook() {
               " RECV:   %01i\n"
               " TIME:%04i\n"
               " DIST: %03i\n"
-              "SRC_X:  %02i\n"
-              "SRC_Y:  %02i\n"
-              "TGT_X:  %02i\n"
-              "TGT_Y:  %02i\n"
             , (flags & HF_ACTIVE)
             , (flags & HF_THROW)
             , (flags & HF_GRAPPLED)
             , (flags & HF_RECOVER)
             , (flags >> 8) & 0xff
-            , (flags >> 16) & 0xff
+            , (flags >> 16) & 0xff);
+
+    gfmDebug_printf(game.pCtx, 0, 116
+            , "SRC_X:  %02i\n"
+              "SRC_Y:  %02i\n"
+              "TGT_X:  %02i\n"
+              "TGT_Y:  %02i\n"
             , sourceX
             , sourceY
             , targetX
@@ -406,5 +434,10 @@ err drawHook() {
     ASSERT(rv == GFMRV_OK, ERR_GFMERR);
 
     return ERR_OK;
+}
+
+/** Whether the hook did grapple onto something */
+int isGrappled() {
+    return (flags & HF_GRAPPLED);
 }
 

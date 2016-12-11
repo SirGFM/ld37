@@ -112,6 +112,7 @@ err doCollide(gfmQuadtreeRoot *pQt) {
         switch (MERGE_TYPES(node1.type, node2.type)) {
             CASE(T_FLOOR, T_HOOK)
                 onGrapple();
+                skipCollision();
             break;
             CASE(T_FLOOR, T_PLAYER)
                 rv = gfmObject_justOverlaped(node1.pObject, node2.pObject);

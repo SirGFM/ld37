@@ -19,7 +19,7 @@
 #define CHAIN_LEN       32
 #define MAX_HOOK_DIST   TILES_TO_PX(10)
 /** Time (in frames!!!) that take the hook to reach its target */
-#define HOOK_TIME       30
+#define HOOK_TIME       24
 /** How many pixels the player may be pulled each frame, while grounded */
 #define HOOK_GROUNDED_FORCE 1
 
@@ -35,6 +35,8 @@ void onGrapple();
 err updateHook();
 /** Draw the hook, if active */
 err drawHook();
+/** Whether the hook did grapple onto something */
+int isGrappled();
 
 #endif /* __LD37_HOOK_H__ */
 
