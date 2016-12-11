@@ -33,13 +33,14 @@ void cleanPlayer();
  * @param  [ in]pParser The parser
  */
 err loadPlayer(gfmParser *pParser);
+/** Collide the player against the world */
+void collidePlayer();
 /** Handle input, update the player's physics and collide it */
 err preUpdatePlayer();
 /** Adjust everything after all updates. Mostly used to set the animation */
 err postUpdatePlayer();
 /** Draw the player */
 err drawPlayer();
-
 
 #endif /* __LD37_PLAYER_H__ */
 

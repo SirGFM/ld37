@@ -20,6 +20,8 @@
 #define MAX_HOOK_DIST   TILES_TO_PX(10)
 /** Time (in frames!!!) that take the hook to reach its target */
 #define HOOK_TIME       30
+/** How many pixels the player may be pulled each frame, while grounded */
+#define HOOK_GROUNDED_FORCE 1
 
 /** Initialize the hook */
 err initHook();

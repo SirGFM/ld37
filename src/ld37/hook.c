@@ -30,7 +30,11 @@ typedef enum enHookFlags hookFlags;
 /** The hook sprite */
 gfmSprite *pHook = 0;
 
-/** Hook's flags. Bits 8-15 are the current step stage (i.e., frame count) */
+/**
+ * Bits  0-7:  Hook's flags.
+ * Bits  8-15: Current step stage (i.e., frame count)
+ * Bits 16-23: Current maximum distance
+ */
 static uint32_t flags = 0;
 
 /** Target position for the hook */
@@ -67,10 +71,31 @@ void resetHook() {
     flags = 0;
 }
 
+/** Retrieve the current distance between the hook and the player */
+static uint32_t _getCurrentDistance() {
+    int x, y, px, py;
+
+    gfmSprite_getCenter(&x, &y, pHook);
+    gfmSprite_getCenter(&px, &py, pPlayer);
+
+    x = x - px;
+    x = x * x;
+    y = y - py;
+    y = y * y;
+
+    return (uint32_t)sqrt((float)(x + y));
+}
+
 /** Called whenever the hook grapple onto something */
 void onGrapple() {
     flags &= ~(HF_THROW | HF_RECOVER);
     flags |= HF_GRAPPLED;
+
+    /* Mostly for debug asserting... */
+    ASSERT_TO(MAX_HOOK_DIST <= 0xff, NOOP(), __cont);
+__cont:
+    flags &= ~0xff0000;
+    flags |= MAX_HOOK_DIST << 16;
 }
 
 /** Update the hook, if active */
@@ -186,7 +211,61 @@ err updateHook() {
     }
 
     if (flags & HF_GRAPPLED) {
-        /* TODO */
+        uint32_t dist, maxDist;
+        gfmCollision dir;
+
+        /* Update the maximum distance */
+        maxDist = (flags >> 16) & 0xff;
+        if (IS_PRESSED(up) && maxDist > 0) {
+            maxDist--;
+        }
+        else if (IS_PRESSED(down) && maxDist < MAX_HOOK_DIST) {
+            maxDist++;
+        }
+        flags &= ~0xff0000;
+        flags |= maxDist << 16;
+
+        rv = gfmSprite_getCollision(&dir, pPlayer);
+        ASSERT(rv == GFMRV_OK, ERR_GFMERR);
+        dist = _getCurrentDistance();
+
+        if (dir & gfmCollision_down) {
+            if (dist >= maxDist) {
+                int nx, ny, x, y;
+
+                x = px - hx;
+                y = py - hy;
+                nx = x * (double)maxDist / (double)dist;
+                ny = y * (double)maxDist / (double)dist;
+
+                /* This looks fun and avoid collision bugs... but isn't correct
+                 * (i.e., the player may pull itself farther than allowed) */
+                if (nx - x > HOOK_GROUNDED_FORCE) {
+                    nx = x + HOOK_GROUNDED_FORCE;
+                }
+                else if (nx - x < -HOOK_GROUNDED_FORCE) {
+                    nx = x - HOOK_GROUNDED_FORCE;
+                }
+
+                if (ny - y > HOOK_GROUNDED_FORCE) {
+                    ny = y + HOOK_GROUNDED_FORCE;
+                }
+                else if (ny - y < -HOOK_GROUNDED_FORCE) {
+                    ny = y - HOOK_GROUNDED_FORCE;
+                }
+
+                x = nx + hx;
+                y = ny + hy;
+
+                rv = gfmSprite_setCenter(pPlayer, x, y);
+                ASSERT(rv == GFMRV_OK, ERR_GFMERR);
+
+                collidePlayer();
+            }
+        }
+        else {
+            /* TODO */
+        }
     }
     else if (!(flags & HF_RECOVER)) {
         /* Collide with the world to check if did grapple */
@@ -273,21 +352,23 @@ err drawHook() {
     float dx, dy;
     int i, tgtX, tgtY, plX, plY;
 
-    gfmDebug_printf(game.pCtx, 0, 100
+    gfmDebug_printf(game.pCtx, 0, 60
             , " ACTV:   %01i\n"
               " THRW:   %01i\n"
               " GRAP:   %01i\n"
               " RECV:   %01i\n"
-              " TIME: %04i\n"
-              "SRC_X:   %02i\n"
-              "SRC_Y:   %02i\n"
-              "TGT_X:   %02i\n"
-              "TGT_Y:   %02i\n"
+              " TIME:%04i\n"
+              " DIST: %03i\n"
+              "SRC_X:  %02i\n"
+              "SRC_Y:  %02i\n"
+              "TGT_X:  %02i\n"
+              "TGT_Y:  %02i\n"
             , (flags & HF_ACTIVE)
             , (flags & HF_THROW)
             , (flags & HF_GRAPPLED)
             , (flags & HF_RECOVER)
             , (flags >> 8) & 0xff
+            , (flags >> 16) & 0xff
             , sourceX
             , sourceY
             , targetX

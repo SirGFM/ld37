@@ -112,6 +112,19 @@ err loadPlayer(gfmParser *pParser) {
     return ERR_OK;
 }
 
+/** Collide the player against the world */
+void collidePlayer() {
+    gfmRV rv;
+    rv = gfmQuadtree_collideSprite(collision.pStaticQt, pPlayer);
+    if (rv == GFMRV_QUADTREE_OVERLAPED) {
+        doCollide(collision.pStaticQt);
+    }
+    rv = gfmQuadtree_collideSprite(collision.pQt, pPlayer);
+    if (rv == GFMRV_QUADTREE_OVERLAPED) {
+        doCollide(collision.pQt);
+    }
+}
+
 /** Handle input, update the player's physics and collide it */
 err preUpdatePlayer() {
     gfmRV rv;
@@ -147,14 +160,7 @@ err preUpdatePlayer() {
     rv = gfmSprite_update(pPlayer, game.pCtx);
     ASSERT(rv == GFMRV_OK, ERR_GFMERR);
 
-    rv = gfmQuadtree_collideSprite(collision.pStaticQt, pPlayer);
-    if (rv == GFMRV_QUADTREE_OVERLAPED) {
-        doCollide(collision.pStaticQt);
-    }
-    rv = gfmQuadtree_collideSprite(collision.pQt, pPlayer);
-    if (rv == GFMRV_QUADTREE_OVERLAPED) {
-        doCollide(collision.pQt);
-    }
+    collidePlayer();
 
     return ERR_OK;
 }
