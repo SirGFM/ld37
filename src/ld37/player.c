@@ -127,10 +127,6 @@ void collidePlayer() {
     if (rv == GFMRV_QUADTREE_OVERLAPED) {
         doCollide(collision.pStaticQt);
     }
-    rv = gfmQuadtree_collideSprite(collision.pQt, pPlayer);
-    if (rv == GFMRV_QUADTREE_OVERLAPED) {
-        doCollide(collision.pQt);
-    }
 }
 
 /** Handle input, update the player's physics and collide it */
@@ -146,6 +142,10 @@ err preUpdatePlayer() {
         rv = gfmSprite_update(pPlayer, game.pCtx);
         ASSERT(rv == GFMRV_OK, ERR_GFMERR);
         collidePlayer();
+        rv = gfmQuadtree_collideSprite(collision.pQt, pPlayer);
+        if (rv == GFMRV_QUADTREE_OVERLAPED) {
+            doCollide(collision.pQt);
+        }
 
         return ERR_OK;
     }
@@ -179,6 +179,10 @@ err preUpdatePlayer() {
     rv = gfmSprite_update(pPlayer, game.pCtx);
     ASSERT(rv == GFMRV_OK, ERR_GFMERR);
     collidePlayer();
+    rv = gfmQuadtree_collideSprite(collision.pQt, pPlayer);
+    if (rv == GFMRV_QUADTREE_OVERLAPED) {
+        doCollide(collision.pQt);
+    }
 
     return ERR_OK;
 }

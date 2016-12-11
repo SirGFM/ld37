@@ -15,6 +15,7 @@
 
 #include <ld37/hook.h>
 #include <ld37/player.h>
+#include <ld37/playstate.h>
 
 #if defined(DEBUG) && !(defined(__WIN32) || defined(__WIN32__))
 #  include <stdlib.h>
@@ -141,6 +142,31 @@ err doCollide(gfmQuadtreeRoot *pQt) {
                         gfmSprite_getVerticalPosition(&y, pPlayer);
                         gfmSprite_setVerticalPosition(pPlayer, y + 1);
                     }
+                }
+                rv = GFMRV_OK;
+            break;
+            CASE(T_PLAYER, T_JEWEL)
+                /* TODO VICTORY!!! */
+                skipCollision();
+                rv = GFMRV_OK;
+            break;
+            CASE(T_PLAYER, T_HORIZONTAL)
+                rv = gfmObject_justOverlaped(node1.pObject, node2.pObject);
+                if (rv == GFMRV_TRUE) {
+                    err erv;
+                    erv = flipHorizontal();
+                    ASSERT(erv == ERR_OK, erv);
+                    skipCollision();
+                }
+                rv = GFMRV_OK;
+            break;
+            CASE(T_PLAYER, T_VERTICAL)
+                rv = gfmObject_justOverlaped(node1.pObject, node2.pObject);
+                if (rv == GFMRV_TRUE) {
+                    err erv;
+                    erv = flipVertical();
+                    ASSERT(erv == ERR_OK, erv);
+                    skipCollision();
                 }
                 rv = GFMRV_OK;
             break;

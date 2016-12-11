@@ -15,13 +15,20 @@
 #include <ld37/level.h>
 #include <ld37/player.h>
 #include <ld37/playstate.h>
+#include <stdint.h>
 #include <string.h>
+
+/** Current level orientation */
+static levelOrientation curOrientation = 0;
 
 /** Group with every 'stuff' (any collectible/interactable) */
 static gfmGroup *pStuff = 0;
 
 /** Main camera */
 static gfmCamera *pCamera = 0;
+
+/** Whether we have already flipped this frame */
+static uint32_t hasFlipped = 0;
 
 /**
  * Spawn something new in the stuff group
@@ -54,7 +61,8 @@ err initPlaystate() {
     ASSERT(rv == GFMRV_OK, ERR_GFMERR);
     rv =  gfmGroup_setDrawOrder(pStuff, gfmDrawOrder_linear);
     ASSERT(rv == GFMRV_OK, ERR_GFMERR);
-    rv = gfmGroup_setCollisionQuality(pStuff, gfmCollisionQuality_visibleOnly);
+    rv = gfmGroup_setCollisionQuality(pStuff
+            , gfmCollisionQuality_collideEverything);
     ASSERT(rv == GFMRV_OK, ERR_GFMERR);
     rv = gfmGroup_preCache(pStuff, MAX_STUFF, MAX_STUFF);
     ASSERT(rv == GFMRV_OK, ERR_GFMERR);
@@ -137,6 +145,10 @@ err updatePlaystate() {
     gfmRV rv;
     err erv;
 
+    if (hasFlipped) {
+        hasFlipped--;
+    }
+
     rv = gfmQuadtree_initRoot(collision.pQt, -8/*x*/, -8/*y*/
             , getLevelWidth() + 16, getLevelHeight() + 16, 8/*depth*/
             , 16/*nodes*/);
@@ -144,6 +156,14 @@ err updatePlaystate() {
 
     rv = gfmTilemap_update(pMap, game.pCtx);
     ASSERT(rv == GFMRV_OK, ERR_GFMERR);
+
+    rv = gfmGroup_update(pStuff, game.pCtx);
+    ASSERT(rv == GFMRV_OK, ERR_GFMERR);
+    rv = gfmQuadtree_collideGroup(collision.pQt, pStuff);
+    if (rv == GFMRV_QUADTREE_OVERLAPED) {
+        doCollide(collision.pQt);
+    }
+
     erv = preUpdatePlayer();
     ASSERT(erv == ERR_OK, erv);
 
@@ -153,21 +173,11 @@ err updatePlaystate() {
     erv = postUpdatePlayer();
     ASSERT(erv == ERR_OK, erv);
 
-    rv = gfmGroup_update(pStuff, game.pCtx);
-    ASSERT(erv == ERR_OK, erv);
-    rv = gfmQuadtree_collideGroup(collision.pQt, pStuff);
-    if (rv == GFMRV_QUADTREE_OVERLAPED) {
-        doCollide(collision.pQt);
-    }
-
     /* Center the camera */
     do {
-        rv = gfmCamera_isSpriteInside(pCamera, pPlayer);
-        if (rv == GFMRV_TRUE) {
-            int x, y;
-            gfmSprite_getCenter(&x, &y, pPlayer);
-            gfmCamera_centerAtPoint(pCamera, x, y);
-        }
+        int x, y;
+        gfmSprite_getCenter(&x, &y, pPlayer);
+        gfmCamera_centerAtPoint(pCamera, x, y);
     } while (0);
 
     return ERR_OK;
@@ -211,5 +221,67 @@ gfmSprite* _spawnStuff(int x, int y, type t, int f) {
     ASSERT(rv == GFMRV_OK, 0);
 
     return pSpr;
+}
+
+/** Flip a sprite */
+static void _flipSprite(gfmSprite *pSpr, levelOrientation spriteOrientation) {
+    int x, y;
+    gfmSprite_getCenter(&x, &y, pSpr);
+    if ((curOrientation | spriteOrientation) & LO_HORIZONTAL_MIRROR) {
+        x = getLevelWidth() - x;
+    }
+    if ((curOrientation | spriteOrientation) & LO_VERTICAL_MIRROR) {
+        y = getLevelHeight() - y;
+    }
+    gfmSprite_setCenter(pSpr, x, y);
+}
+
+/** Flip the world */
+static err _flipWorld(levelOrientation spriteOrientation) {
+    gfmGroupNode *pList;
+    gfmRV rv;
+    err erv;
+
+    erv = loadLevel(curOrientation);
+    ASSERT(erv == ERR_OK, erv);
+    _flipSprite(pPlayer, spriteOrientation);
+    _flipSprite(pHook, spriteOrientation);
+
+    rv = gfmGroup_update(pStuff, game.pCtx);
+    ASSERT(rv == GFMRV_OK, ERR_GFMERR);
+    rv = gfmGroup_getCollideableList(&pList, pStuff);
+    ASSERT(rv == GFMRV_OK, ERR_GFMERR);
+    while (pList != 0) {
+        gfmSprite *pSpr;
+        rv = gfmGroup_getNextSprite(&pSpr, &pList);
+        ASSERT(rv == GFMRV_OK, ERR_GFMERR);
+        _flipSprite(pSpr, spriteOrientation);
+    }
+
+    hasFlipped = 16;
+
+    return ERR_OK;
+}
+
+/**
+ * Flip the world (and everything within) horizontally
+ */
+err flipHorizontal() {
+    if (hasFlipped) {
+        return ERR_OK;
+    }
+    curOrientation ^= LO_HORIZONTAL_MIRROR;
+    return _flipWorld(LO_HORIZONTAL_MIRROR);
+}
+
+/**
+ * Flip the world (and everything within) vertically
+ */
+err flipVertical() {
+    if (hasFlipped) {
+        return ERR_OK;
+    }
+    curOrientation ^= LO_VERTICAL_MIRROR;
+    return _flipWorld(LO_VERTICAL_MIRROR);
 }
 

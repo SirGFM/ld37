@@ -19,6 +19,8 @@ err loadPlaystate();
 void cleanPlaystate();
 err updatePlaystate();
 err drawPlaystate();
+err flipHorizontal();
+err flipVertical();
 
 #endif /* __LD37_PLAYSTATE_H__*/
 

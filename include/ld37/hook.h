@@ -8,6 +8,7 @@
 
 #include <base/error.h>
 #include <base/physics.h>
+#include <GFraMe/gfmSprite.h>
 
 #define HOOK_DEF_WIDTH  2
 #define HOOK_DEF_HEIGHT 2
@@ -22,6 +23,8 @@
 #define HOOK_TIME       24
 /** How many pixels the player may be pulled each frame, while grounded */
 #define HOOK_GROUNDED_FORCE 1
+
+extern gfmSprite *pHook;
 
 /** Initialize the hook */
 err initHook();

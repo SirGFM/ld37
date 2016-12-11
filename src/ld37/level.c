@@ -212,28 +212,28 @@ err loadLevel(levelOrientation orientation) {
  */
 static inline int _recalculateTile(int tile, levelOrientation orientation) {
     switch (tile) {
-#define MIRRORED_CASE(tile) \
+#define MIRRORED_CASE(tile, offB, offC, offD) \
         case tile: \
         case tile + 4: \
         case tile + 8: \
         case tile + 12: \
-            if (orientation == LO_HORIZONTAL_MIRROR)    return tile + 4; \
-            else if (orientation == LO_VERTICAL_MIRROR) return tile + 8; \
-            else if (orientation == LO_MIRROR_BOTH)     return tile + 12; \
+            if (orientation == LO_HORIZONTAL_MIRROR)    return tile + 4 + offB; \
+            else if (orientation == LO_VERTICAL_MIRROR) return tile + 8 + offC; \
+            else if (orientation == LO_MIRROR_BOTH)     return tile + 12 + offD; \
             else                                        return tile; \
             break
 
-        MIRRORED_CASE(64); /* top left */
-        MIRRORED_CASE(65); /* top */
-        MIRRORED_CASE(66); /* top right */
-        MIRRORED_CASE(80); /* left */
-        MIRRORED_CASE(81); /* center */
-        MIRRORED_CASE(82); /* right */
-        MIRRORED_CASE(96); /* bottom left */
-        MIRRORED_CASE(97); /* bottom */
-        MIRRORED_CASE(98); /* bottom right */
-        MIRRORED_CASE(67); /* diagonal shadow */
-        MIRRORED_CASE(83); /* full shadow */
+        MIRRORED_CASE(64,  2,  32,  34); /* top left */
+        MIRRORED_CASE(65,  0,  32,  32); /* top */
+        MIRRORED_CASE(66, -2,  32,  30); /* top right */
+        MIRRORED_CASE(80,  2,   0,   2); /* left */
+        MIRRORED_CASE(81,  0,   0,   0); /* center */
+        MIRRORED_CASE(82, -2,   0,  -2); /* right */
+        MIRRORED_CASE(96,  2, -32, -30); /* bottom left */
+        MIRRORED_CASE(97,  0, -32, -32); /* bottom */
+        MIRRORED_CASE(98, -2, -32, -34); /* bottom right */
+        MIRRORED_CASE(67,  0,   0,   0); /* diagonal shadow */
+        MIRRORED_CASE(83,  0,   0,   0); /* full shadow */
 
 #undef MIRRORED_CASE
 
