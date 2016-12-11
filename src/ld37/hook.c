@@ -376,7 +376,7 @@ err updateHook() {
 err drawHook() {
     gfmRV rv;
     float dx, dy;
-    int i, tgtX, tgtY, plX, plY;
+    int i, cx, cy, tgtX, tgtY, plX, plY;
 
     gfmDebug_printf(game.pCtx, 0, 60
             , " ACTV:   %01i\n"
@@ -416,12 +416,15 @@ err drawHook() {
     dx = (tgtX - plX) / (double)CHAIN_LEN;
     dy = (tgtY - plY) / (double)CHAIN_LEN;
 
+    rv = gfm_getCameraPosition(&cx, &cy, game.pCtx);
+    ASSERT(rv == GFMRV_OK, ERR_GFMERR);
+
     i = 1;
     while (i < CHAIN_LEN) {
         int x, y;
 
-        x = plX + dx * i - 2;
-        y = plY + dy * i - 2;
+        x = plX + dx * i - 2 - cx;
+        y = plY + dy * i - 2 - cy;
         rv = gfm_drawTile(game.pCtx, HOOK_SPRITESET, x, y, CHAIN_FRAME, 0);
         ASSERT(rv == GFMRV_OK, ERR_GFMERR);
 

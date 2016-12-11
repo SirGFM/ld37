@@ -145,6 +145,9 @@ err doCollide(gfmQuadtreeRoot *pQt) {
                 rv = GFMRV_OK;
             break;
 
+            IGNORESELF(T_PLAYER)
+            IGNORESELF(T_FLOOR)
+            IGNORESELF(T_HOOK)
             IGNORE(T_HOOK, T_PLAYER)
             IGNORE(T_HOOK, T_JEWEL)
             IGNORE(T_HOOK, T_HORIZONTAL)

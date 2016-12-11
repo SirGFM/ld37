@@ -3,7 +3,10 @@
 #include <base/game.h>
 #include <base/gfx.h>
 #include <base/input.h>
+#include <conf/game.h>
 #include <conf/type.h>
+#include <GFraMe/gframe.h>
+#include <GFraMe/gfmCamera.h>
 #include <GFraMe/gfmGroup.h>
 #include <GFraMe/gfmParser.h>
 #include <GFraMe/gfmSprite.h>
@@ -17,6 +20,9 @@
 /** Group with every 'stuff' (any collectible/interactable) */
 static gfmGroup *pStuff = 0;
 
+/** Main camera */
+static gfmCamera *pCamera = 0;
+
 /**
  * Spawn something new in the stuff group
  *
@@ -29,6 +35,9 @@ gfmSprite* _spawnStuff(int x, int y, type t, int f);
 
 err initPlaystate() {
     gfmRV rv;
+
+    rv = gfm_getCamera(&pCamera, game.pCtx);
+    ASSERT(rv == GFMRV_OK, ERR_GFMERR);
 
     rv = gfmGroup_getNew(&pStuff);
     ASSERT(rv == GFMRV_OK, ERR_GFMERR);
@@ -62,6 +71,13 @@ err loadPlaystate() {
 
     erv = loadLevel(LO_DEFAULT);
     ASSERT_TO(erv == ERR_OK, NOOP(), __ret);
+
+    rv = gfmCamera_setWorldDimensions(pCamera, getLevelWidth(),
+            getLevelHeight());
+    ASSERT_TO(rv == GFMRV_OK, erv = ERR_GFMERR, __ret);
+    rv = gfmCamera_setDeadzone(pCamera, 2 * V_WIDTH / 5 /*x*/
+            , 2 * V_HEIGHT / 5 /*y*/, V_WIDTH / 5, V_HEIGHT / 5);
+    ASSERT_TO(rv == GFMRV_OK, erv = ERR_GFMERR, __ret);
 
     rv = gfmParser_getNew(&pParser);
     ASSERT_TO(rv == GFMRV_OK, erv = ERR_GFMERR, __ret);
@@ -143,6 +159,16 @@ err updatePlaystate() {
     if (rv == GFMRV_QUADTREE_OVERLAPED) {
         doCollide(collision.pQt);
     }
+
+    /* Center the camera */
+    do {
+        rv = gfmCamera_isSpriteInside(pCamera, pPlayer);
+        if (rv == GFMRV_TRUE) {
+            int x, y;
+            gfmSprite_getCenter(&x, &y, pPlayer);
+            gfmCamera_centerAtPoint(pCamera, x, y);
+        }
+    } while (0);
 
     return ERR_OK;
 }
