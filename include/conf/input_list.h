@@ -61,7 +61,7 @@
 #  define X_DEBUG_BUTTON_LIST \
      X(qt         , gfmKey_f11) \
      X(gif        , gfmKey_f10) \
-     X(dbgStep    , gfmKey_f6) \
+     X(dbgStep    , gfmKey_f6, gfmController_l2) \
      X(dbgPause   , gfmKey_f5)
 #else
 #  define X_DEBUG_BUTTON_LIST
