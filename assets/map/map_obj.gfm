@@ -1,6 +1,5 @@
 obj player 32 56 8 8
 obj jewel 24 96 8 8
 obj vertical 612 264 8 8
-obj horizontal 684 24 8 8
-obj vertical 192 96 8 8
-obj horizontal 224 96 8 8
+obj vertical 448 200 8 8
+obj vertical 112 256 8 8

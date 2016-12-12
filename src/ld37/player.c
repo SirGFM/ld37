@@ -189,14 +189,30 @@ err preUpdatePlayer() {
 
 /** Adjust everything after all updates. Mostly used to set the animation */
 err postUpdatePlayer() {
-    double vx;
+    double vx, vy;
     gfmRV rv;
     gfmCollision dir;
     err erv;
 
     rv = gfmSprite_getCollision(&dir, pPlayer);
     ASSERT(rv == GFMRV_OK, ERR_GFMERR);
-    rv = gfmSprite_getHorizontalVelocity(&vx, pPlayer);
+    rv = gfmSprite_getVelocity(&vx, &vy, pPlayer);
+    ASSERT(rv == GFMRV_OK, ERR_GFMERR);
+
+    /* Cap the speed */
+    if (vy < -450) {
+        vy = -450;
+    }
+    else if (vy > 450) {
+        vy = 450;
+    }
+    if (vx < -300) {
+        vx = -300;
+    }
+    else if (vx > 300) {
+        vx = 300;
+    }
+    rv = gfmSprite_setVelocity(pPlayer, vx, vy);
     ASSERT(rv == GFMRV_OK, ERR_GFMERR);
 
     if (didJustJump) {
