@@ -146,7 +146,7 @@ err doCollide(gfmQuadtreeRoot *pQt) {
                 rv = GFMRV_OK;
             break;
             CASE(T_PLAYER, T_JEWEL)
-                /* TODO VICTORY!!! */
+                win();
                 skipCollision();
                 rv = GFMRV_OK;
             break;

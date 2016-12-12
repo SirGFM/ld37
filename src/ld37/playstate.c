@@ -10,6 +10,7 @@
 #include <GFraMe/gfmGroup.h>
 #include <GFraMe/gfmParser.h>
 #include <GFraMe/gfmSprite.h>
+#include <GFraMe/gfmText.h>
 #include <GFraMe/gfmTilemap.h>
 #include <ld37/hook.h>
 #include <ld37/level.h>
@@ -21,6 +22,8 @@
 /** Current level orientation */
 static levelOrientation curOrientation = 0;
 
+static gfmText *pText = 0;
+
 /** Group with every 'stuff' (any collectible/interactable) */
 static gfmGroup *pStuff = 0;
 
@@ -29,6 +32,7 @@ static gfmCamera *pCamera = 0;
 
 /** Whether we have already flipped this frame */
 static uint32_t hasFlipped = 0;
+static uint32_t hasWon = 0;
 
 /**
  * Spawn something new in the stuff group
@@ -42,6 +46,9 @@ gfmSprite* _spawnStuff(int x, int y, type t, int f);
 
 err initPlaystate() {
     gfmRV rv;
+
+    rv = gfmText_getNew(&pText);
+    ASSERT(rv == GFMRV_OK, ERR_GFMERR);
 
     rv = gfm_getCamera(&pCamera, game.pCtx);
     ASSERT(rv == GFMRV_OK, ERR_GFMERR);
@@ -76,6 +83,15 @@ err loadPlaystate() {
     gfmParser *pParser = 0;
     gfmRV rv;
     err erv;
+
+    curOrientation = 0;
+
+//"YOU DID IT!\n"
+//"CONGRATULATIONS!!"
+    rv = gfmText_init(pText, 16/*x*/, 96/*y*/, 18/*maxWidth*/, 3/*maxLines*/
+            , 100/*delay*/, 0/*bindToWorld*/, gfx.pSset8x8, 0/*tile*/);
+    ASSERT(rv == GFMRV_OK, ERR_GFMERR);
+    hasWon = 0;
 
     erv = loadLevel(LO_DEFAULT);
     ASSERT_TO(erv == ERR_OK, NOOP(), __ret);
@@ -142,6 +158,7 @@ __ret:
 
 void cleanPlaystate() {
     gfmGroup_free(&pStuff);
+    gfmText_free(&pText);
 }
 
 err updatePlaystate() {
@@ -183,6 +200,9 @@ err updatePlaystate() {
         gfmCamera_centerAtPoint(pCamera, x, y);
     } while (0);
 
+    rv = gfmText_update(pText, game.pCtx);
+    ASSERT(erv == ERR_OK, erv);
+
     return ERR_OK;
 }
 
@@ -197,6 +217,8 @@ err drawPlaystate() {
     erv = drawPlayer();
     ASSERT(erv == ERR_OK, erv);
     rv = gfmGroup_draw(pStuff, game.pCtx);
+    ASSERT(erv == ERR_OK, erv);
+    rv = gfmText_draw(pText, game.pCtx);
     ASSERT(erv == ERR_OK, erv);
 
     return ERR_OK;
@@ -288,3 +310,13 @@ err flipVertical() {
     return _flipWorld(LO_VERTICAL_MIRROR);
 }
 
+void win() {
+    if (hasWon) {
+        return;
+    }
+    hasWon = 1;
+    gfmText_setTextStatic(pText
+        , "YOU DID IT!\n"
+          "CONGRATULATIONS!!"
+        , 1/*doCopy*/);
+}
