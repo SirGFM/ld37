@@ -227,10 +227,10 @@ gfmSprite* _spawnStuff(int x, int y, type t, int f) {
 static void _flipSprite(gfmSprite *pSpr, levelOrientation spriteOrientation) {
     int x, y;
     gfmSprite_getCenter(&x, &y, pSpr);
-    if ((curOrientation | spriteOrientation) & LO_HORIZONTAL_MIRROR) {
+    if ((spriteOrientation) & LO_HORIZONTAL_MIRROR) {
         x = getLevelWidth() - x;
     }
-    if ((curOrientation | spriteOrientation) & LO_VERTICAL_MIRROR) {
+    if ((spriteOrientation) & LO_VERTICAL_MIRROR) {
         y = getLevelHeight() - y;
     }
     gfmSprite_setCenter(pSpr, x, y);
