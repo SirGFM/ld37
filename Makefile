@@ -39,8 +39,7 @@
 #      Required files:
 #        - assets/icon.ico
 #        - assets/icon.rc
-# TODO Uncomment this to add an icon to the game
-#  WINICON := assets/icon.o
+  WINICON := assets/icon.o
 
 # List every header file
   HEADERS := $(shell find include/ -name *.h)
