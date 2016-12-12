@@ -36,7 +36,9 @@
       , gfmController_a) \
   X(grapple \
       , gfmKey_c \
-      , gfmController_b)
+      , gfmController_b) \
+  X(reset \
+      , gfmKey_r)
 
 /** Add default alternate mappings for buttons */
 #define X_ALTERNATE_BUTTON_MAPPING \

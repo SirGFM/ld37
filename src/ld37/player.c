@@ -111,6 +111,8 @@ err loadPlayer(gfmParser *pParser) {
     gfmRV rv;
     int x, y;
 
+    rv = gfmSprite_resetObject(pPlayer);
+    ASSERT(rv == GFMRV_OK, ERR_GFMERR);
     rv = gfmParser_getPos(&x, &y, pParser);
     ASSERT(rv == GFMRV_OK, ERR_GFMERR);
     rv = gfmSprite_setPosition(pPlayer, x - PLAYER_DEF_OFFX

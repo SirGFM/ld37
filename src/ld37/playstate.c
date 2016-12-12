@@ -80,6 +80,9 @@ err loadPlaystate() {
     erv = loadLevel(LO_DEFAULT);
     ASSERT_TO(erv == ERR_OK, NOOP(), __ret);
 
+    rv = gfmGroup_killAll(pStuff);
+    ASSERT(rv == GFMRV_OK, ERR_GFMERR);
+
     rv = gfmCamera_setWorldDimensions(pCamera, getLevelWidth(),
             getLevelHeight());
     ASSERT_TO(rv == GFMRV_OK, erv = ERR_GFMERR, __ret);

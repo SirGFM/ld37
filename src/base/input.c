@@ -6,6 +6,7 @@
 #include <base/game.h>
 #include <base/input.h>
 #include <conf/input_list.h>
+#include <conf/state.h>
 
 #include <GFraMe/gfmError.h>
 
@@ -35,6 +36,9 @@ void handleInput() {
         if (rv == GFMRV_WINDOW_MODE_UNCHANGED) {
             gfm_setFullscreen(game.pCtx);
         }
+    }
+    if (DID_JUST_RELEASE(reset)) {
+        game.nextState = ST_PLAYSTATE;
     }
 }
 
@@ -133,6 +137,7 @@ err initInput() {
     rv = gfm_bindInput(game.pCtx, input.name.handle, key); \
     ASSERT(rv == GFMRV_OK, ERR_GFMERR);
     X_BUTTON_LIST
+    X_ALTERNATE_BUTTON_MAPPING
 #undef X
 
     /* Bind every gamepad button.
