@@ -43,13 +43,17 @@
 /** Add default alternate mappings for buttons */
 #define X_ALTERNATE_BUTTON_MAPPING \
   X(left \
-      , gfmKey_a) \
+      , gfmKey_a \
+      , gfmController_left) \
   X(right \
-      , gfmKey_d) \
+      , gfmKey_d \
+      , gfmController_right) \
   X(up \
-      , gfmKey_w) \
+      , gfmKey_w \
+      , gfmController_up) \
   X(down \
-      , gfmKey_s) \
+      , gfmKey_s \
+      , gfmController_down) \
   X(jump \
       , gfmKey_x) \
   X(jump \
